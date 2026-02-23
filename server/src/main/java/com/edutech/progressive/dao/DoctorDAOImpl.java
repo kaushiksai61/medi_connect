@@ -30,7 +30,7 @@ public class DoctorDAOImpl implements DoctorDAO {
     @Override
     public int addDoctor(Doctor doctor) throws SQLException{
         try {
-            PreparedStatement ps=connection.prepareStatement("insert into doctor(full_name,specialty,contact_number,email,years_of_experience) values (?,?,?,?,?)",Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps=connection.prepareStatement("insert into doctor(full_name,specialit ty,contact_number,email,years_of_experience) values (?,?,?,?,?)",Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, doctor.getFullName());
             ps.setString(2,doctor.getSpecialty());
             ps.setString(3,doctor.getContactNumber());
