@@ -1,22 +1,24 @@
 package com.edutech.progressive.service;
 
+import java.util.Optional;
+import org.springframework.stereotype.Service;
+
 import com.edutech.progressive.entity.Appointment;
+import com.edutech.progressive.repository.AppointmentRepository;
 
-import java.util.List;
+@Service
+public class AppointmentService {
+    private final AppointmentRepository repository;
 
-public interface AppointmentService {
-    List<Appointment> getAllAppointments();
+    public AppointmentService(AppointmentRepository repository) {
+        this.repository = repository;
+    }
 
-    int createAppointment(Appointment appointment);
+    public Appointment add(Appointment appointment) {
+        return repository.save(appointment);
+    }
 
-    public void updateAppointment(Appointment appointment);
-
-    public Appointment getAppointmentById(int appointmentId);
-
-    public List<Appointment> getAppointmentByClinic(int clinicId);
-
-    public List<Appointment> getAppointmentByPatient(int patientId);
-
-    public List<Appointment> getAppointmentByStatus(String status);
-
+    public Optional<Appointment> findById(Long id) {
+        return repository.findById(id);
+    }
 }

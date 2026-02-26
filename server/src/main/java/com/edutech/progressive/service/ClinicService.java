@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ClinicService {
 
-    public List<Clinic> getAllClinics();
+    public List<Clinic> getAllClinics() throws Exception;
 
     public Clinic getClinicById(int clinicId);
 

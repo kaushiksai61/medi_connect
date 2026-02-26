@@ -1,37 +1,28 @@
 package com.edutech.progressive.controller;
 
-import com.edutech.progressive.entity.Appointment;
+import java.util.Optional;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import com.edutech.progressive.entity.Appointment;
+import com.edutech.progressive.service.AppointmentService;
 
+@RestController
+@RequestMapping("/appointments")
 public class AppointmentController {
+    private final AppointmentService service;
 
-    public ResponseEntity<List<Appointment>> getAllAppointments() {
-        return null;
+    public AppointmentController(AppointmentService service) {
+        this.service = service;
     }
 
-    public ResponseEntity<Integer> createAppointment(Appointment appointment) {
-        return null;
+    @PostMapping
+    public ResponseEntity<Appointment> create(@RequestBody Appointment appointment) {
+        return ResponseEntity.ok(service.add(appointment));
     }
 
-    public ResponseEntity<Void> updateAppointment(int appointmentId, Appointment appointment) {
-        return null;
-    }
-
-    public ResponseEntity<Appointment> getAppointmentById(int appointmentId) {
-        return null;
-    }
-
-    public ResponseEntity<List<Appointment>> getAppointmentByClinic(int clinicId) {
-        return null;
-    }
-
-    public ResponseEntity<List<Appointment>> getAppointmentByPatient(int patientId) {
-        return null;
-    }
-
-    public ResponseEntity<List<Appointment>> getAppointmentByStatus(String status) {
-        return null;
+    @GetMapping("/{id}")
+    public Optional<Appointment> get(@PathVariable Long id) {
+        return service.findById(id);
     }
 }
