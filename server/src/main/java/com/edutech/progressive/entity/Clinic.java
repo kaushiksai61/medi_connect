@@ -1,63 +1,84 @@
 package com.edutech.progressive.entity;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
+ 
+import javax.persistence.*;
+ 
 @Entity
+
 @Table(name = "clinic")
+
 public class Clinic {
-
+ 
     @Id
+
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     @Column(name = "clinic_id")
-    private int clinicId;
 
-    @Column(name = "clinic_name", nullable = false)
+    private Integer clinicId;
+ 
+    @Column(name = "clinic_name", nullable = false, length = 255)
+
     private String clinicName;
-
+ 
     @Column(name = "location", length = 100)
+
     private String location;
-
+ 
     @Column(name = "doctor_id")
-    private int doctorId;
 
+    private Integer doctorId; // IMPORTANT for Day 7 (no relation yet)
+ 
     @Column(name = "contact_number", length = 15)
+
     private String contactNumber;
-
+ 
     @Column(name = "established_year")
-    private int establishedYear;
 
-    public Clinic() {
-    }
+    private Integer establishedYear;
+ 
+    public Clinic() {}
+ 
+    public Clinic(Integer clinicId, String clinicName, String location,
 
-    public Clinic(int clinicId, String clinicName, String location, int doctorId, String contactNumber, int establishedYear) {
+                  Integer doctorId, String contactNumber, Integer establishedYear) {
+
         this.clinicId = clinicId;
+
         this.clinicName = clinicName;
+
         this.location = location;
+
         this.doctorId = doctorId;
+
         this.contactNumber = contactNumber;
+
         this.establishedYear = establishedYear;
+
     }
+ 
+    public Integer getClinicId() { return clinicId; }
 
-    public int getClinicId() { return clinicId; }
-    public void setClinicId(int clinicId) { this.clinicId = clinicId; }
-
+    public void setClinicId(Integer clinicId) { this.clinicId = clinicId; }
+ 
     public String getClinicName() { return clinicName; }
+
     public void setClinicName(String clinicName) { this.clinicName = clinicName; }
-
+ 
     public String getLocation() { return location; }
+
     public void setLocation(String location) { this.location = location; }
+ 
+    public Integer getDoctorId() { return doctorId; }
 
-    public int getDoctorId() { return doctorId; }
-    public void setDoctorId(int doctorId) { this.doctorId = doctorId; }
-
+    public void setDoctorId(Integer doctorId) { this.doctorId = doctorId; }
+ 
     public String getContactNumber() { return contactNumber; }
-    public void setContactNumber(String contactNumber) { this.contactNumber = contactNumber; }
 
-    public int getEstablishedYear() { return establishedYear; }
-    public void setEstablishedYear(int establishedYear) { this.establishedYear = establishedYear; }
+    public void setContactNumber(String contactNumber) { this.contactNumber = contactNumber; }
+ 
+    public Integer getEstablishedYear() { return establishedYear; }
+
+    public void setEstablishedYear(Integer establishedYear) { this.establishedYear = establishedYear; }
+
 }
+ 

@@ -16,4 +16,5 @@ public interface DoctorDAO {
     void deleteDoctor(int doctorId) throws SQLException;
 
     List<Doctor> getAllDoctors() throws SQLException;
+    List<Doctor> getDoctorSortedByExperience() throws SQLException;
 }
