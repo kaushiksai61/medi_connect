@@ -65,15 +65,10 @@ public class ClinicDAOImpl implements ClinicDAO {
             throw e;
 
         } finally {
-
             if (keys != null) try { keys.close(); } catch (SQLException ignored) {}
-
             if (ps != null) try { ps.close(); } catch (SQLException ignored) {}
-
             if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
-
         }
-
     }
  
     @Override
