@@ -1,33 +1,59 @@
 package com.edutech.progressive.service.impl;
 
-import java.util.ArrayList;
+import com.edutech.progressive.entity.Clinic;
+import com.edutech.progressive.repository.ClinicRepository;
+import com.edutech.progressive.service.ClinicService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-
-import com.edutech.progressive.entity.Clinic;
-import com.edutech.progressive.service.ClinicService;
-
 @Service
+@Transactional
 public class ClinicServiceImplJpa implements ClinicService {
-    public ClinicServiceImplJpa() {
+
+    private final ClinicRepository clinicRepository;
+
+    public ClinicServiceImplJpa(ClinicRepository clinicRepository) {
+        this.clinicRepository = clinicRepository;
     }
 
-    public List<Clinic> getAllClinics() {
-        return new ArrayList<>();
+    @Override
+    public List<Clinic> getAllClinics() throws Exception {
+        return clinicRepository.findAll();
     }
 
-    public Clinic getClinicById(int clinicId) {
-        return null;
+    @Override
+    public Clinic getClinicById(int clinicId) throws Exception {
+        return clinicRepository.findByClinicId(clinicId);
     }
 
-    public Integer addClinic(Clinic clinic) {
-        return -1;
+    @Override
+    public Integer addClinic(Clinic clinic) throws Exception {
+        return clinicRepository.save(clinic).getClinicId();
     }
 
-    public void updateClinic(Clinic clinic) {
+    @Override
+    public void updateClinic(Clinic clinic) throws Exception {
+        if (clinic == null) return;
+        if (clinic.getClinicId() == 0) return;
+        if (!clinicRepository.existsById(clinic.getClinicId())) return;
+        clinicRepository.save(clinic);
     }
 
-    public void deleteClinic(int clinicId) {
+    @Override
+    public void deleteClinic(int clinicId) throws Exception {
+        Clinic c = clinicRepository.findByClinicId(clinicId);
+        if (c != null) clinicRepository.delete(c);
+    }
+
+    @Override
+    public List<Clinic> getAllClinicByLocation(String location) throws Exception {
+        return clinicRepository.findAllByLocation(location);
+    }
+
+    @Override
+    public List<Clinic> getAllClinicByDoctorId(int doctorId) throws Exception {
+        return clinicRepository.findAllByDoctorId(doctorId);
     }
 }

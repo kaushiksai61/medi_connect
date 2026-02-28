@@ -25,7 +25,7 @@ public class Clinic {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id")
-    @JsonIgnoreProperties({"clinics"})
+    @JsonIgnoreProperties({"clinics", "hibernateLazyInitializer", "handler"})
     private Doctor doctor;
 
     public Clinic() {}
