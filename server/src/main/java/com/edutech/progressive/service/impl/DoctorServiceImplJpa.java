@@ -1,10 +1,12 @@
 package com.edutech.progressive.service.impl;
 
 import com.edutech.progressive.entity.Doctor;
+import com.edutech.progressive.exception.DoctorAlreadyExistsException;
 import com.edutech.progressive.repository.ClinicRepository;
 import com.edutech.progressive.repository.DoctorRepository;
 import com.edutech.progressive.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Primary
 @Transactional
 public class DoctorServiceImplJpa implements DoctorService {
 
@@ -41,6 +44,12 @@ public class DoctorServiceImplJpa implements DoctorService {
 
     @Override
     public Integer addDoctor(Doctor doctor) throws Exception {
+        if (doctor != null && doctor.getEmail() != null) {
+            Doctor existing = doctorRepository.findByEmail(doctor.getEmail());
+            if (existing != null) {
+                throw new DoctorAlreadyExistsException("Doctor already exists with email: " + doctor.getEmail());
+            }
+        }
         return doctorRepository.save(doctor).getDoctorId();
     }
 
@@ -48,6 +57,12 @@ public class DoctorServiceImplJpa implements DoctorService {
     public void updateDoctor(Doctor doctor) throws Exception {
         if (doctor == null) return;
         if (!doctorRepository.existsById(doctor.getDoctorId())) return;
+        if (doctor.getEmail() != null) {
+            Doctor byEmail = doctorRepository.findByEmail(doctor.getEmail());
+            if (byEmail != null && byEmail.getDoctorId() != doctor.getDoctorId()) {
+                throw new DoctorAlreadyExistsException("Doctor already exists with email: " + doctor.getEmail());
+            }
+        }
         doctorRepository.save(doctor);
     }
 

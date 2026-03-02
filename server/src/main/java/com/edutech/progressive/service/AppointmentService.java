@@ -7,7 +7,7 @@ import java.util.List;
 public interface AppointmentService {
     List<Appointment> getAllAppointments();
  
-    int createAppointment(Appointment appointment);
+    Integer createAppointment(Appointment appointment);
  
     public void updateAppointment(Appointment appointment);
  
