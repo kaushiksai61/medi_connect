@@ -1,14 +1,17 @@
 package com.edutech.progressive.service.impl;
 
 import com.edutech.progressive.entity.Clinic;
+import com.edutech.progressive.exception.ClinicAlreadyExistsException;
 import com.edutech.progressive.repository.ClinicRepository;
 import com.edutech.progressive.service.ClinicService;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Primary
 @Transactional
 public class ClinicServiceImplJpa implements ClinicService {
 
@@ -30,6 +33,12 @@ public class ClinicServiceImplJpa implements ClinicService {
 
     @Override
     public Integer addClinic(Clinic clinic) throws Exception {
+        if (clinic != null && clinic.getClinicName() != null) {
+            Clinic existing = clinicRepository.findByClinicName(clinic.getClinicName());
+            if (existing != null) {
+                throw new ClinicAlreadyExistsException("Clinic already exists with name: " + clinic.getClinicName());
+            }
+        }
         return clinicRepository.save(clinic).getClinicId();
     }
 
@@ -38,6 +47,12 @@ public class ClinicServiceImplJpa implements ClinicService {
         if (clinic == null) return;
         if (clinic.getClinicId() == 0) return;
         if (!clinicRepository.existsById(clinic.getClinicId())) return;
+        if (clinic.getClinicName() != null) {
+            Clinic byName = clinicRepository.findByClinicName(clinic.getClinicName());
+            if (byName != null && byName.getClinicId() != clinic.getClinicId()) {
+                throw new ClinicAlreadyExistsException("Clinic already exists with name: " + clinic.getClinicName());
+            }
+        }
         clinicRepository.save(clinic);
     }
 

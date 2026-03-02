@@ -1,6 +1,7 @@
 package com.edutech.progressive.controller;
 
 import com.edutech.progressive.entity.Clinic;
+import com.edutech.progressive.exception.ClinicAlreadyExistsException;
 import com.edutech.progressive.service.ClinicService;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,11 @@ public class ClinicController {
 
     public ClinicController(ClinicService clinicService) {
         this.clinicService = clinicService;
+    }
+
+    @ExceptionHandler(ClinicAlreadyExistsException.class)
+    public ResponseEntity<Void> handleClinicExists(ClinicAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 
     @GetMapping
@@ -41,6 +47,8 @@ public class ClinicController {
         try {
             Integer id = clinicService.addClinic(clinic);
             return ResponseEntity.status(HttpStatus.CREATED).body(id);
+        } catch (ClinicAlreadyExistsException e) {
+            throw e;
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -52,6 +60,8 @@ public class ClinicController {
             clinic.setClinicId(clinicId);
             clinicService.updateClinic(clinic);
             return ResponseEntity.ok().build();
+        } catch (ClinicAlreadyExistsException e) {
+            throw e;
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

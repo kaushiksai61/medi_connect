@@ -1,9 +1,9 @@
 package com.edutech.progressive.controller;
 
 import com.edutech.progressive.entity.Doctor;
+import com.edutech.progressive.exception.DoctorAlreadyExistsException;
 import com.edutech.progressive.service.DoctorService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -15,6 +15,11 @@ public class DoctorController {
 
     public DoctorController(DoctorService doctorService) {
         this.doctorService = doctorService;
+    }
+
+    @ExceptionHandler(DoctorAlreadyExistsException.class)
+    public ResponseEntity<Void> handleDoctorExists(DoctorAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 
     @GetMapping
@@ -41,6 +46,8 @@ public class DoctorController {
         try {
             Integer id = doctorService.addDoctor(doctor);
             return ResponseEntity.status(HttpStatus.CREATED).body(id);
+        } catch (DoctorAlreadyExistsException e) {
+            throw e;
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -52,6 +59,8 @@ public class DoctorController {
             doctor.setDoctorId(doctorId);
             doctorService.updateDoctor(doctor);
             return ResponseEntity.ok().build();
+        } catch (DoctorAlreadyExistsException e) {
+            throw e;
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface ClinicRepository extends JpaRepository<Clinic, Integer> {
+
     Clinic findByClinicId(int clinicId);
 
     List<Clinic> findAllByLocation(String location);
@@ -18,4 +19,6 @@ public interface ClinicRepository extends JpaRepository<Clinic, Integer> {
     @Transactional
     @Query("delete from Clinic c where c.doctor.doctorId = :doctorId")
     void deleteByDoctorId(@Param("doctorId") int doctorId);
+
+    Clinic findByClinicName(String clinicName);
 }
