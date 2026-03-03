@@ -3,6 +3,7 @@ package com.edutech.progressive.service.impl;
 import com.edutech.progressive.entity.Patient;
 import com.edutech.progressive.exception.PatientAlreadyExistsException;
 import com.edutech.progressive.exception.PatientNotFoundException;
+import com.edutech.progressive.repository.BillingRepository;
 import com.edutech.progressive.repository.PatientRepository;
 import com.edutech.progressive.service.PatientService;
 import org.springframework.context.annotation.Primary;
@@ -18,9 +19,11 @@ import java.util.List;
 public class PatientServiceImplJpa implements PatientService {
 
     private final PatientRepository patientRepository;
+    private final BillingRepository billingRepository;
 
-    public PatientServiceImplJpa(PatientRepository patientRepository) {
+    public PatientServiceImplJpa(PatientRepository patientRepository, BillingRepository billingRepository) {
         this.patientRepository = patientRepository;
+        this.billingRepository = billingRepository;
     }
 
     @Override
@@ -71,6 +74,7 @@ public class PatientServiceImplJpa implements PatientService {
         if (persisted == null) {
             throw new PatientNotFoundException("Patient not found: " + patientId);
         }
+        billingRepository.deleteByPatientId(patientId);
         patientRepository.delete(persisted);
     }
 
