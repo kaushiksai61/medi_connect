@@ -4,8 +4,11 @@ import com.edutech.progressive.entity.Patient;
 import com.edutech.progressive.exception.PatientAlreadyExistsException;
 import com.edutech.progressive.exception.PatientNotFoundException;
 import com.edutech.progressive.service.PatientService;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -14,74 +17,73 @@ public class PatientController {
 
     private final PatientService patientService;
 
-    public PatientController(PatientService patientService) {
+    public PatientController(PatientService patientService){
         this.patientService = patientService;
     }
 
-    @ExceptionHandler(PatientNotFoundException.class)
-    public ResponseEntity<Void> handlePatientNotFound(PatientNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
-
-    @ExceptionHandler(PatientAlreadyExistsException.class)
-    public ResponseEntity<Void> handlePatientExists(PatientAlreadyExistsException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).build();
-    }
-
     @GetMapping
-    public ResponseEntity<List<Patient>> getAllPatients() {
+    public ResponseEntity<?> getAllPatients() {
         try {
-            return ResponseEntity.ok(patientService.getAllPatients());
+            List<Patient> list = patientService.getAllPatients();
+            return ResponseEntity.ok(list);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching patients: " + e.getMessage());
         }
     }
 
-    @GetMapping("/{patientID}")
-    public ResponseEntity<Patient> getPatientById(@PathVariable("patientID") int patientId) {
+    @GetMapping("/{patientId}")
+    public ResponseEntity<?> getPatientById(@PathVariable int patientId) {
         try {
-            return ResponseEntity.ok(patientService.getPatientById(patientId));
+            Patient p = patientService.getPatientById(patientId);
+            return ResponseEntity.ok(p);
         } catch (PatientNotFoundException e) {
-            throw e;
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching patient: " + e.getMessage());
         }
     }
 
     @PostMapping
-    public ResponseEntity<Integer> addPatient(@RequestBody Patient patient) {
+    public ResponseEntity<?> addPatient(@RequestBody Patient patient) {
         try {
             Integer id = patientService.addPatient(patient);
-            return ResponseEntity.status(HttpStatus.CREATED).body(id);
+            Patient saved = patientService.getPatientById(id);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (PatientAlreadyExistsException e) {
-            throw e;
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error creating patient: " + e.getMessage());
         }
     }
 
-    @PutMapping("/{patientID}")
-    public ResponseEntity<Void> updatePatient(@PathVariable("patientID") int patientId, @RequestBody Patient patient) {
+    @PutMapping("/{patientId}")
+    public ResponseEntity<?> updatePatient(@PathVariable int patientId, @RequestBody Patient patient) {
         try {
             patient.setPatientId(patientId);
             patientService.updatePatient(patient);
-            return ResponseEntity.ok().build();
-        } catch (PatientNotFoundException | PatientAlreadyExistsException e) {
-            throw e;
+            Patient updated = patientService.getPatientById(patientId);
+            return ResponseEntity.ok(updated);
+        } catch (PatientNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (PatientAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error updating patient: " + e.getMessage());
         }
     }
 
-    @DeleteMapping("/{patientID}")
-    public ResponseEntity<Void> deletePatient(@PathVariable("patientID") int patientId) {
+    @DeleteMapping("/{patientId}")
+    public ResponseEntity<?> deletePatient(@PathVariable int patientId) {
         try {
-            patientService.deletePatient(patientId);
-            return ResponseEntity.noContent().build();
-        } catch (PatientNotFoundException e) {
-            throw e;
+            patientService.deletePatient(patientId); // idempotent
+            return ResponseEntity.ok(Collections.singletonMap("message", "Patient deleted successfully"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error deleting patient: " + e.getMessage());
         }
     }
 }

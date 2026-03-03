@@ -5,20 +5,20 @@ import com.edutech.progressive.exception.PatientAlreadyExistsException;
 import com.edutech.progressive.exception.PatientNotFoundException;
 import com.edutech.progressive.repository.PatientRepository;
 import com.edutech.progressive.service.PatientService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
 @Primary
-@Transactional
+@Service
 public class PatientServiceImplJpa implements PatientService {
 
     private final PatientRepository patientRepository;
 
+    /** For Spring autowiring */
+    @Autowired
     public PatientServiceImplJpa(PatientRepository patientRepository) {
         this.patientRepository = patientRepository;
     }
@@ -30,52 +30,57 @@ public class PatientServiceImplJpa implements PatientService {
 
     @Override
     public Patient getPatientById(int patientId) throws Exception {
-        Patient p = patientRepository.findByPatientId(patientId);
-        if (p == null) {
-            throw new PatientNotFoundException("Patient not found: " + patientId);
-        }
-        return p;
+        // Day-9: must throw PatientNotFoundException
+        return patientRepository.findByPatientId(patientId)
+                .orElseThrow(() -> new PatientNotFoundException("Patient not found with id: " + patientId));
     }
 
     @Override
     public Integer addPatient(Patient patient) throws Exception {
-        if (patient == null || patient.getEmail() == null) {
-            throw new PatientAlreadyExistsException("Invalid patient email");
-        }
-        Patient existing = patientRepository.findByEmail(patient.getEmail());
-        if (existing != null) {
+        // Day-9: email uniqueness
+        if (patient.getEmail() != null &&
+            patientRepository.findByEmail(patient.getEmail()).isPresent()) {
             throw new PatientAlreadyExistsException("Patient already exists with email: " + patient.getEmail());
         }
-        return patientRepository.save(patient).getPatientId();
+        Patient saved = patientRepository.save(patient);
+        return saved.getPatientId();
     }
 
     @Override
     public void updatePatient(Patient patient) throws Exception {
-        if (patient == null) return;
-        Patient persisted = patientRepository.findByPatientId(patient.getPatientId());
-        if (persisted == null) {
-            throw new PatientNotFoundException("Patient not found: " + patient.getPatientId());
+        if (patient.getPatientId() <= 0) {
+            throw new PatientNotFoundException("Patient id is required for update");
         }
-        if (patient.getEmail() != null) {
-            Patient byEmail = patientRepository.findByEmail(patient.getEmail());
-            if (byEmail != null && byEmail.getPatientId() != patient.getPatientId()) {
-                throw new PatientAlreadyExistsException("Patient already exists with email: " + patient.getEmail());
+
+        Patient existing = patientRepository.findByPatientId(patient.getPatientId())
+                .orElseThrow(() -> new PatientNotFoundException("Patient not found with id: " + patient.getPatientId()));
+
+        // Email uniqueness if changed
+        if (patient.getEmail() != null && !patient.getEmail().equals(existing.getEmail())) {
+            if (patientRepository.findByEmail(patient.getEmail()).isPresent()) {
+                throw new PatientAlreadyExistsException("Another patient already exists with email: " + patient.getEmail());
             }
+            existing.setEmail(patient.getEmail());
         }
-        patientRepository.save(patient);
+
+        existing.setFullName(patient.getFullName());
+        existing.setDateOfBirth(patient.getDateOfBirth());
+        existing.setContactNumber(patient.getContactNumber());
+        existing.setAddress(patient.getAddress());
+
+        patientRepository.save(existing);
     }
 
     @Override
     public void deletePatient(int patientId) throws Exception {
-        Patient persisted = patientRepository.findByPatientId(patientId);
-        if (persisted == null) {
-            throw new PatientNotFoundException("Patient not found: " + patientId);
-        }
-        patientRepository.delete(persisted);
+        // Idempotent delete: no throw if missing
+        patientRepository.findByPatientId(patientId).ifPresent(patientRepository::delete);
     }
 
     @Override
     public List<Patient> getAllPatientSortedByName() throws Exception {
-        return patientRepository.findAll(Sort.by(Sort.Direction.ASC, "fullName"));
+        List<Patient> list = patientRepository.findAll();
+        list.sort((a, b) -> a.getFullName().compareToIgnoreCase(b.getFullName()));
+        return list;
     }
 }
