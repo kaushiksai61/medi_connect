@@ -1,29 +1,43 @@
 package com.edutech.progressive.service.impl;
 
+import com.edutech.progressive.dto.PatientDTO;
 import com.edutech.progressive.entity.Patient;
+import com.edutech.progressive.entity.User;
+import com.edutech.progressive.exception.DoctorAlreadyExistsException;
 import com.edutech.progressive.exception.PatientAlreadyExistsException;
 import com.edutech.progressive.exception.PatientNotFoundException;
+import com.edutech.progressive.repository.AppointmentRepository;
 import com.edutech.progressive.repository.BillingRepository;
 import com.edutech.progressive.repository.PatientRepository;
+import com.edutech.progressive.repository.UserRepository;
 import com.edutech.progressive.service.PatientService;
-import org.springframework.context.annotation.Primary;
-import org.springframework.data.domain.Sort;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
-@Primary
-@Transactional
 public class PatientServiceImplJpa implements PatientService {
 
-    private final PatientRepository patientRepository;
-    private final BillingRepository billingRepository;
+    PatientRepository patientRepository;
 
-    public PatientServiceImplJpa(PatientRepository patientRepository, BillingRepository billingRepository) {
+    @Autowired
+    AppointmentRepository appointmentRepository;
+
+    @Autowired
+    private BillingRepository billingRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public PatientServiceImplJpa(PatientRepository patientRepository) {
         this.patientRepository = patientRepository;
-        this.billingRepository = billingRepository;
     }
 
     @Override
@@ -32,54 +46,63 @@ public class PatientServiceImplJpa implements PatientService {
     }
 
     @Override
-    public Patient getPatientById(int patientId) throws Exception {
-        Patient p = patientRepository.findByPatientId(patientId);
-        if (p == null) {
-            throw new PatientNotFoundException("Patient not found: " + patientId);
-        }
-        return p;
-    }
-
-    @Override
     public Integer addPatient(Patient patient) throws Exception {
-        if (patient == null || patient.getEmail() == null) {
-            throw new PatientAlreadyExistsException("Invalid patient email");
-        }
-        Patient existing = patientRepository.findByEmail(patient.getEmail());
-        if (existing != null) {
-            throw new PatientAlreadyExistsException("Patient already exists with email: " + patient.getEmail());
+        Patient existingPatient = patientRepository.findByEmail(patient.getEmail());
+        if (existingPatient != null) {
+            throw new PatientAlreadyExistsException("Patient with email " + patient.getEmail() + " already exists");
         }
         return patientRepository.save(patient).getPatientId();
     }
 
     @Override
-    public void updatePatient(Patient patient) throws Exception {
-        if (patient == null) return;
-        Patient persisted = patientRepository.findByPatientId(patient.getPatientId());
-        if (persisted == null) {
-            throw new PatientNotFoundException("Patient not found: " + patient.getPatientId());
+    public List<Patient> getAllPatientSortedByName() throws Exception {
+        List<Patient> patientList = patientRepository.findAll();
+        patientList.sort(Comparator.comparing(Patient::getFullName));
+        return patientList;
+    }
+
+    @Override
+    public void modifyPatientDetails(PatientDTO patientDTO) {
+        Patient existingPatient = patientRepository.findByEmail(patientDTO.getEmail());
+        User patientUser = userRepository.findByPatientId(patientDTO.getPatientId());
+        if (existingPatient != null && existingPatient.getPatientId() != patientDTO.getPatientId()) {
+            throw new PatientAlreadyExistsException("Patient with email " + patientDTO.getEmail() + " already exists");
         }
-        if (patient.getEmail() != null) {
-            Patient byEmail = patientRepository.findByEmail(patient.getEmail());
-            if (byEmail != null && byEmail.getPatientId() != patient.getPatientId()) {
-                throw new PatientAlreadyExistsException("Patient already exists with email: " + patient.getEmail());
-            }
+        User user = userRepository.findByUsername(patientDTO.getUsername());
+        if (user != null && user.getPatient().getPatientId() != patientDTO.getPatientId()) {
+            throw new DoctorAlreadyExistsException("User with username " + patientDTO.getEmail() + " already exists");
         }
-        patientRepository.save(patient);
+        else {
+            patientUser.setUsername(patientDTO.getUsername());
+        }
+        if (!patientUser.getPassword().equals(patientDTO.getPassword())) {
+            patientUser.setPassword(passwordEncoder.encode(patientDTO.getPassword()));
+        }
+        userRepository.save(patientUser);
+        Patient patientEntity = new Patient();
+        patientEntity.setPatientId(patientDTO.getPatientId());
+        patientEntity.setFullName(patientDTO.getFullName());
+        patientEntity.setDateOfBirth(patientDTO.getDateOfBirth());
+        patientEntity.setEmail(patientDTO.getEmail());
+        patientEntity.setContactNumber(patientDTO.getContactNumber());
+        patientEntity.setAddress(patientDTO.getAddress());
+        patientRepository.save(patientEntity);
     }
 
     @Override
     public void deletePatient(int patientId) throws Exception {
-        Patient persisted = patientRepository.findByPatientId(patientId);
-        if (persisted == null) {
-            throw new PatientNotFoundException("Patient not found: " + patientId);
+        if (!patientRepository.existsById(patientId)) {
+            throw new PatientNotFoundException("Patient with ID " + patientId + " not found for deletion");
         }
+        appointmentRepository.deleteByPatientId(patientId);
         billingRepository.deleteByPatientId(patientId);
-        patientRepository.delete(persisted);
+        userRepository.deleteByPatientId(patientId);
+        patientRepository.deleteById(patientId);
     }
 
     @Override
-    public List<Patient> getAllPatientSortedByName() throws Exception {
-        return patientRepository.findAll(Sort.by(Sort.Direction.ASC, "fullName"));
+    public Patient getPatientById(int patientId) throws Exception {
+        return patientRepository.findById(patientId)
+                .orElseThrow(() -> new PatientNotFoundException("Patient with ID " + patientId + " not found"));
     }
 }
