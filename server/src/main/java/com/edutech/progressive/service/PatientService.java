@@ -2,8 +2,6 @@ package com.edutech.progressive.service;
 
 import com.edutech.progressive.dto.PatientDTO;
 import com.edutech.progressive.entity.Patient;
-import org.springframework.http.ResponseEntity;
-
 import java.util.List;
 
 public interface PatientService {
