@@ -28,15 +28,6 @@ export class DoctorDTO {
       this.yearsOfExperience = yearsOfExperience;
     }
   
-    logAttributes(): void {
-      console.log('doctorId:', this.doctorId);
-      console.log('username:', this.username);
-      console.log('password:', this.password);
-      console.log('fullName:', this.fullName);
-      console.log('contactNumber:', this.contactNumber);
-      console.log('email:', this.email);
-      console.log('specialty:', this.specialty);
-      console.log('yearsOfExperience:', this.yearsOfExperience);
-    }
+    logAttributes?(): void {}
   }
   
