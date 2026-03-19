@@ -1,13 +1,12 @@
 package com.edutech.progressive.service.impl;
 
+import java.sql.SQLException;
+import java.util.List;
+
+
 import com.edutech.progressive.dao.ClinicDAO;
 import com.edutech.progressive.entity.Clinic;
-import com.edutech.progressive.entity.Doctor;
 import com.edutech.progressive.service.ClinicService;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ClinicServiceImplJdbc implements ClinicService {
 
@@ -22,16 +21,17 @@ public class ClinicServiceImplJdbc implements ClinicService {
         try {
             return clinicDAO.getAllClinics();
         } catch (SQLException e) {
-            throw new Exception("Failed to fetch clinics", e);
+            throw new Exception("Error fetching all clinics", e);
         }
     }
 
     @Override
     public Clinic getClinicById(int clinicId) throws Exception {
         try {
-            return clinicDAO.getClinicById(clinicId);
-        } catch (SQLException e) {
-            throw new Exception("Failed to fetch clinic by id: " + clinicId, e);
+            Clinic clinic = clinicDAO.getClinicById(clinicId);
+            return clinic;
+        } catch (Exception e) {
+            throw new Exception("Error fetching clinic with ID " + clinicId, e);
         }
     }
 
@@ -40,7 +40,7 @@ public class ClinicServiceImplJdbc implements ClinicService {
         try {
             return clinicDAO.addClinic(clinic);
         } catch (SQLException e) {
-            throw new Exception("Failed to add clinic", e);
+            throw new Exception("Error adding clinic: " + clinic.getClinicName(), e);
         }
     }
 
@@ -49,7 +49,7 @@ public class ClinicServiceImplJdbc implements ClinicService {
         try {
             clinicDAO.updateClinic(clinic);
         } catch (SQLException e) {
-            throw new Exception("Failed to update clinic", e);
+            throw new Exception("Error updating clinic with ID " + clinic.getClinicId(), e);
         }
     }
 
@@ -58,44 +58,7 @@ public class ClinicServiceImplJdbc implements ClinicService {
         try {
             clinicDAO.deleteClinic(clinicId);
         } catch (SQLException e) {
-            throw new Exception("Failed to delete clinic", e);
-        }
-    }
-
-    @Override
-    public List<Clinic> getAllClinicByLocation(String location) throws Exception {
-        try {
-            List<Clinic> all = clinicDAO.getAllClinics();
-            List<Clinic> result = new ArrayList<>();
-            if (all != null) {
-                for (Clinic c : all) {
-                    if (c != null && location != null && location.equals(c.getLocation())) {
-                        result.add(c);
-                    }
-                }
-            }
-            return result;
-        } catch (SQLException e) {
-            throw new Exception("Failed to fetch clinics by location", e);
-        }
-    }
-
-    @Override
-    public List<Clinic> getAllClinicByDoctorId(int doctorId) throws Exception {
-        try {
-            List<Clinic> all = clinicDAO.getAllClinics();
-            List<Clinic> result = new ArrayList<>();
-            if (all != null) {
-                for (Clinic c : all) {
-                    Doctor d = c != null ? c.getDoctor() : null;
-                    if (d != null && d.getDoctorId() == doctorId) {
-                        result.add(c);
-                    }
-                }
-            }
-            return result;
-        } catch (SQLException e) {
-            throw new Exception("Failed to fetch clinics by doctorId", e);
+            throw new Exception("Error deleting clinic with ID " + clinicId, e);
         }
     }
 }

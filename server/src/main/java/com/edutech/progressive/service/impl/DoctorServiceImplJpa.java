@@ -1,20 +1,26 @@
 package com.edutech.progressive.service.impl;
 
-import com.edutech.progressive.dto.DoctorDTO;
-import com.edutech.progressive.entity.Doctor;
-import com.edutech.progressive.entity.User;
-import com.edutech.progressive.exception.DoctorAlreadyExistsException;
-import com.edutech.progressive.repository.AppointmentRepository;
-import com.edutech.progressive.repository.ClinicRepository;
-import com.edutech.progressive.repository.DoctorRepository;
-import com.edutech.progressive.repository.UserRepository;
-import com.edutech.progressive.service.DoctorService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.edutech.progressive.entity.Doctor;
+import com.edutech.progressive.exception.DoctorAlreadyExistsException;
+import com.edutech.progressive.repository.ClinicRepository;
+import com.edutech.progressive.repository.DoctorRepository;
+import com.edutech.progressive.service.DoctorService;
+import com.edutech.progressive.dto.DoctorDTO;
+import com.edutech.progressive.entity.User;
+import com.edutech.progressive.repository.AppointmentRepository;
+
+import com.edutech.progressive.repository.UserRepository;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 @Service
 public class DoctorServiceImplJpa implements DoctorService {

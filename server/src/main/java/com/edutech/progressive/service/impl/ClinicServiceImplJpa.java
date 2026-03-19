@@ -1,74 +1,85 @@
 package com.edutech.progressive.service.impl;
 
+import java.util.List;
+
+import javax.persistence.EntityNotFoundException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.edutech.progressive.entity.Clinic;
 import com.edutech.progressive.exception.ClinicAlreadyExistsException;
 import com.edutech.progressive.repository.ClinicRepository;
 import com.edutech.progressive.service.ClinicService;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
-@Primary
-@Transactional
 public class ClinicServiceImplJpa implements ClinicService {
 
-    private final ClinicRepository clinicRepository;
+    private ClinicRepository clinicRepository;
 
+
+    @Autowired
     public ClinicServiceImplJpa(ClinicRepository clinicRepository) {
         this.clinicRepository = clinicRepository;
+ 
     }
 
     @Override
     public List<Clinic> getAllClinics() throws Exception {
-        return clinicRepository.findAll();
+            return clinicRepository.findAll();
     }
 
     @Override
     public Clinic getClinicById(int clinicId) throws Exception {
-        return clinicRepository.findByClinicId(clinicId);
+           return clinicRepository.findByClinicId(clinicId);
     }
 
     @Override
     public Integer addClinic(Clinic clinic) throws Exception {
-        if (clinic != null && clinic.getClinicName() != null) {
-            Clinic existing = clinicRepository.findByClinicName(clinic.getClinicName());
-            if (existing != null) {
-                throw new ClinicAlreadyExistsException("Clinic already exists with name: " + clinic.getClinicName());
-            }
+        Clinic existingClinic = clinicRepository.findByClinicName(clinic.getClinicName());
+        if (existingClinic != null) {
+            throw new ClinicAlreadyExistsException("Clinic with this name already exists, Clinic Name: " + clinic.getClinicName());
         }
-        return clinicRepository.save(clinic).getClinicId();
-    }
+            return clinicRepository.save(clinic).getClinicId();
+        
+        }
 
     @Override
     public void updateClinic(Clinic clinic) throws Exception {
-        if (clinic == null) return;
-        if (clinic.getClinicId() == 0) return;
-        if (!clinicRepository.existsById(clinic.getClinicId())) return;
-        if (clinic.getClinicName() != null) {
-            Clinic byName = clinicRepository.findByClinicName(clinic.getClinicName());
-            if (byName != null && byName.getClinicId() != clinic.getClinicId()) {
-                throw new ClinicAlreadyExistsException("Clinic already exists with name: " + clinic.getClinicName());
-            }
-        }
-        clinicRepository.save(clinic);
+       
+Clinic current = clinicRepository.findByClinicId(clinic.getClinicId());
+    if (current == null) {
+        throw new EntityNotFoundException("Clinic not found: " + clinic.getClinicId());
+    }
+
+    Clinic existingClinic = clinicRepository.findByClinicName(clinic.getClinicName());
+    if (existingClinic != null && existingClinic.getClinicId() != clinic.getClinicId()) {
+        throw new ClinicAlreadyExistsException(
+            "Clinic with this name already exists, Clinic Name: " + clinic.getClinicName()
+        );
+    }
+
+    clinicRepository.save(clinic);
+
+
     }
 
     @Override
     public void deleteClinic(int clinicId) throws Exception {
-        Clinic c = clinicRepository.findByClinicId(clinicId);
-        if (c != null) clinicRepository.delete(c);
+ 
+         clinicRepository.deleteById(clinicId);
+        
     }
 
     @Override
-    public List<Clinic> getAllClinicByLocation(String location) throws Exception {
+    public List<Clinic> getAllClinicByLocation(String location) {
         return clinicRepository.findAllByLocation(location);
     }
 
     @Override
-    public List<Clinic> getAllClinicByDoctorId(int doctorId) throws Exception {
+    public List<Clinic> getAllClinicByDoctorId(int doctorId) {
         return clinicRepository.findAllByDoctorId(doctorId);
     }
+
+
 }

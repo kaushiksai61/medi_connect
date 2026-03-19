@@ -1,17 +1,18 @@
 package com.edutech.progressive.service;
 
 import com.edutech.progressive.entity.Billing;
+
 import java.util.List;
 
 public interface BillingService {
 
-    List<Billing> getAllBills();
+    List<Billing> getAllBills()throws Exception;
 
-    Integer createBill(Billing billing);
+    Billing getBillById(int billingId)throws Exception;
 
-    void deleteBill(int billingId);
+    Integer createBill(Billing billing)throws Exception;
 
-    Billing getBillById(int billingId);
+    void deleteBill(int billingId)throws Exception;
 
-    List<Billing> getBillsByPatient(int patientId);
+    List<Billing> getBillsByPatientId(int patientId)throws Exception;
 }

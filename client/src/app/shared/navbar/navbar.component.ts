@@ -9,7 +9,7 @@ export class NavBarComponent implements OnInit {
 
   constructor() { }
 
-  role:string|null=null;
+  role!:string|null;
   ngOnInit(): void {
     console.log(localStorage.getItem("role"));
     this.role=localStorage.getItem("role");

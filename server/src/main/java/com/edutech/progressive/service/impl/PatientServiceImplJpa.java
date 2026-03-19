@@ -1,22 +1,26 @@
 package com.edutech.progressive.service.impl;
 
-import com.edutech.progressive.dto.PatientDTO;
-import com.edutech.progressive.entity.Patient;
-import com.edutech.progressive.entity.User;
-import com.edutech.progressive.exception.DoctorAlreadyExistsException;
-import com.edutech.progressive.exception.PatientAlreadyExistsException;
-import com.edutech.progressive.exception.PatientNotFoundException;
-import com.edutech.progressive.repository.AppointmentRepository;
-import com.edutech.progressive.repository.BillingRepository;
-import com.edutech.progressive.repository.PatientRepository;
-import com.edutech.progressive.repository.UserRepository;
-import com.edutech.progressive.service.PatientService;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.edutech.progressive.entity.Patient;
+import com.edutech.progressive.exception.PatientAlreadyExistsException;
+import com.edutech.progressive.exception.PatientNotFoundException;
+import com.edutech.progressive.repository.BillingRepository;
+import com.edutech.progressive.repository.PatientRepository;
+import com.edutech.progressive.service.PatientService;
+
+import com.edutech.progressive.dto.PatientDTO;
+import com.edutech.progressive.entity.User;
+import com.edutech.progressive.exception.DoctorAlreadyExistsException;
+
+import com.edutech.progressive.repository.AppointmentRepository;
+import com.edutech.progressive.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.util.Comparator;
-import java.util.List;
 
 @Service
 public class PatientServiceImplJpa implements PatientService {

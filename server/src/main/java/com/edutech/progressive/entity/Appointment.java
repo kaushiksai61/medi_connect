@@ -2,7 +2,6 @@ package com.edutech.progressive.entity;
 
 import javax.persistence.*;
 import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "appointment")
@@ -10,45 +9,31 @@ public class Appointment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "appointment_id")
-    private int appointmentId;
+    private Integer appointmentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Patient patient;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "clinic_id", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "clinics"})
     private Clinic clinic;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "appointment_date", nullable = false)
     private Date appointmentDate;
 
-    @Column(name = "status", nullable = false, length = 255)
-    private String status;
+    @Column(name = "status", nullable = false)
+    private String status; 
 
-    @Column(name = "purpose", length = 255)
+    @Column(name = "purpose")
     private String purpose;
 
-    public Appointment() {}
 
-    public Appointment(int appointmentId, Patient patient, Clinic clinic, Date appointmentDate, String status, String purpose) {
-        this.appointmentId = appointmentId;
-        this.patient = patient;
-        this.clinic = clinic;
-        this.appointmentDate = appointmentDate;
-        this.status = status;
-        this.purpose = purpose;
-    }
-
-    public int getAppointmentId() {
+    public Integer getAppointmentId() {
         return appointmentId;
     }
 
-    public void setAppointmentId(int appointmentId) {
+    public void setAppointmentId(Integer appointmentId) {
         this.appointmentId = appointmentId;
     }
 

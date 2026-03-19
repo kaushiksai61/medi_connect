@@ -2,52 +2,37 @@ package com.edutech.progressive.entity;
 
 import javax.persistence.*;
 import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@Table(name = "billing")
 public class Billing {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "billing_id")
-    private int billingId;
+    private Integer billingId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Patient patient;
 
-    @Column(name = "amount", nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false)
     private Double amount;
 
+    @Column(nullable = false)
     @Temporal(TemporalType.DATE)
-    @Column(name = "date_of_issue", nullable = false)
     private Date dateOfIssue;
 
     @Temporal(TemporalType.DATE)
-    @Column(name = "due_date")
     private Date dueDate;
 
-    @Column(name = "status", nullable = false, length = 255)
+    @Column(nullable = false)
     private String status;
 
-    public Billing() {}
-
-    public Billing(int billingId, Patient patient, Double amount, Date dateOfIssue, Date dueDate, String status) {
-        this.billingId = billingId;
-        this.patient = patient;
-        this.amount = amount;
-        this.dateOfIssue = dateOfIssue;
-        this.dueDate = dueDate;
-        this.status = status;
-    }
-
-    public int getBillingId() {
+    // Getters and Setters
+    public Integer getBillingId() {
         return billingId;
     }
 
-    public void setBillingId(int billingId) {
+    public void setBillingId(Integer billingId) {
         this.billingId = billingId;
     }
 

@@ -5,17 +5,18 @@ import java.util.List;
 
 public interface ClinicService {
 
-    List<Clinic> getAllClinics() throws Exception;
+    public List<Clinic> getAllClinics()throws Exception;
 
-    Clinic getClinicById(int clinicId) throws Exception;
+    public Clinic getClinicById(int clinicId)throws Exception;
 
-    Integer addClinic(Clinic clinic) throws Exception;
+    public Integer addClinic(Clinic clinic)throws Exception;
 
-    void updateClinic(Clinic clinic) throws Exception;
+    public void updateClinic(Clinic clinic)throws Exception;
 
-    void deleteClinic(int clinicId) throws Exception;
+    public void deleteClinic(int clinicId)throws Exception;
 
-    List<Clinic> getAllClinicByLocation(String location) throws Exception;
+    //Do not implement these methods in ClinicServiceImplJdbc.java class
+    default public List<Clinic> getAllClinicByLocation(String location)throws Exception { return null; }
 
-    List<Clinic> getAllClinicByDoctorId(int doctorId) throws Exception;
+    default public List<Clinic> getAllClinicByDoctorId(int doctorId)throws Exception { return null; }
 }

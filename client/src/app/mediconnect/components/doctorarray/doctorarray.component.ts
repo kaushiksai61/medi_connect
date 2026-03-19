@@ -12,7 +12,6 @@ export class DoctorArrayComponent implements OnInit {
     constructor() { }
 
     ngOnInit(): void {
-        // Sample Doctor Data in JSON Array
         this.doctors = [
             {
                 doctorId: 1,

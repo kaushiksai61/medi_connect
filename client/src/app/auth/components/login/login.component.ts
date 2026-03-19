@@ -1,52 +1,55 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { catchError, of, tap } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-login',
+    selector: 'app-login',
     templateUrl: './login.component.html',
-      styleUrls: ['./login.component.scss'],
-      })
-      export class LoginComponent implements OnInit {
-        loginForm!: FormGroup;
-          errorMessage: string | null = null;
-            successMessage: string | null = null;
-              constructor(private formBuilder: FormBuilder, private authService: AuthService, private router: Router) {}
-                ngOnInit(): void {
-                    this.loginForm = this.formBuilder.group({
-                          username: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9]+$/)]],
-                                password: ['', [Validators.required, Validators.minLength(8)]],
-                                    });
-                                      }
-                                        onSubmit(): void {
-                                            if (this.loginForm.invalid) {
-                                                  this.errorMessage = 'Invalid form';
-                                                        this.successMessage = null;
-                                                              return;
-                                                                  }
-                                                                      const { username, password } = this.loginForm.value;
-                                                                          this.authService.login({ username, password }).subscribe({
-                                                                                next: (res) => {
-                                                                                        const token = res['token'] || '';
-                                                                                                const roles = res['roles'] || res['role'] || '';
-                                                                                                        const userId = res['userId'] || res['user_id'] || '';
-                                                                                                                const doctorId = res['doctorId'] || res['doctor_id'] || '';
-                                                                                                                        const patientId = res['patientId'] || res['patient_id'] || '';
-                                                                                                                                if (token) localStorage.setItem('token', token);
-                                                                                                                                        if (roles) localStorage.setItem('role', roles);
-                                                                                                                                                if (userId) localStorage.setItem('user_id', String(userId));
-                                                                                                                                                        if (doctorId) localStorage.setItem('doctor_id', String(doctorId));
-                                                                                                                                                                if (patientId) localStorage.setItem('patient_id', String(patientId));
-                                                                                                                                                                        this.errorMessage = null;
-                                                                                                                                                                                this.successMessage = 'Login successful';
-                                                                                                                                                                                      },
-                                                                                                                                                                                            error: () => {
-                                                                                                                                                                                                    this.successMessage = null;
-                                                                                                                                                                                                            this.errorMessage = 'Login failed';
-                                                                                                                                                                                                                  },
-                                                                                                                                                                                                                      });
-                                                                                                                                                                                                                        }
-                                                                                                                                                                                                                        }
+    styleUrls: ['./login.component.scss'],
+})
+export class LoginComponent {
+    isOpen = false;
+    loginForm!: FormGroup;
+    errorMessage: string | null = null;
+    successMessage: string | null = null;
 
-                                                                                                                                                                                                                        
+    constructor(
+        private formBuilder: FormBuilder,
+        private authService: AuthService,
+        private router: Router
+    ) { }
+
+    ngOnInit(): void {
+        this.loginForm = this.formBuilder.group({
+            username: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9]+$/)]],
+            password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[A-Z])(?=.*\d).+$/)]]
+        });
+    }
+
+    onSubmit(): void {
+        if (this.loginForm.valid) {
+          this.authService.login(this.loginForm.value).pipe(
+            tap((response) => {
+              console.log(response);
+              localStorage.setItem("token", response['token']);
+              localStorage.setItem("role", response['roles']);
+              localStorage.setItem("user_id", response['userId']);
+              localStorage.setItem("doctor_id", response['doctorId']);
+              localStorage.setItem("patient_id", response['patientId']);
+              localStorage.setItem("userName",response['nameValue'])
+              console.log(localStorage.getItem("role"));
+              this.router.navigate(["mediconnect"]);
+            }),
+            catchError((error: string) => {
+              this.errorMessage = 'Invalid username or password';
+              console.error("Login error:", error);
+              return of(null);
+            })
+          ).subscribe();
+        } else {
+          this.errorMessage = 'Please fill out the form correctly.';
+        }
+      }
+}

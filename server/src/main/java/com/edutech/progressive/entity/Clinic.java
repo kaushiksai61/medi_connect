@@ -1,36 +1,48 @@
 package com.edutech.progressive.entity;
 
-import javax.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 
 @Entity
-@Table(name = "clinic")
+@Table(name="clinic")
 public class Clinic {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "clinic_id")
+    @Column(name="clinic_id")
     private int clinicId;
 
-    @Column(name = "clinic_name", nullable = false, length = 255)
+    @Column(name = "clinic_name",nullable = false)
     private String clinicName;
 
-    @Column(name = "location", length = 100)
+    @Column(name="location")
     private String location;
 
-    @Column(name = "contact_number", length = 15)
+    @Column(name="contact_number")
     private String contactNumber;
 
-    @Column(name = "established_year")
-    private Integer establishedYear;
+    @Column(name="established_year")
+    private int establishedYear;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "doctor_id")
-    @JsonIgnoreProperties({"clinics", "hibernateLazyInitializer", "handler"})
     private Doctor doctor;
 
-    public Clinic() {}
+    public Clinic() {
+    }
 
-    public Clinic(int clinicId, String clinicName, String location, String contactNumber, Integer establishedYear, Doctor doctor) {
+    
+
+    public Clinic(int clinicId, String clinicName, String location, String contactNumber, int establishedYear,Doctor doctor) {
         this.clinicId = clinicId;
         this.clinicName = clinicName;
         this.location = location;
@@ -38,6 +50,8 @@ public class Clinic {
         this.establishedYear = establishedYear;
         this.doctor = doctor;
     }
+
+
 
     public int getClinicId() {
         return clinicId;
@@ -63,6 +77,7 @@ public class Clinic {
         this.location = location;
     }
 
+    
     public String getContactNumber() {
         return contactNumber;
     }
@@ -71,19 +86,32 @@ public class Clinic {
         this.contactNumber = contactNumber;
     }
 
-    public Integer getEstablishedYear() {
+    public int getEstablishedYear() {
         return establishedYear;
     }
 
-    public void setEstablishedYear(Integer establishedYear) {
+    public void setEstablishedYear(int establishedYear) {
         this.establishedYear = establishedYear;
     }
+
+
 
     public Doctor getDoctor() {
         return doctor;
     }
 
+
+
     public void setDoctor(Doctor doctor) {
         this.doctor = doctor;
     }
+
+    
+
+    
+
+
+    
+
+
 }

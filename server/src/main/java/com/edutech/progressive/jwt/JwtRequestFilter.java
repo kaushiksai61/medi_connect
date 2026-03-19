@@ -1,55 +1,72 @@
 package com.edutech.progressive.jwt;
 
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.security.core.userdetails.UserDetailsService;
+
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import java.util.Collection;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.*;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.io.IOException;
+
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
-
     private final UserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
 
+    @Autowired
     public JwtRequestFilter(UserDetailsService userDetailsService, JwtUtil jwtUtil) {
         this.userDetailsService = userDetailsService;
         this.jwtUtil = jwtUtil;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        final String authorizationHeader = request.getHeader("Authorization");
 
-        final String authHeader = request.getHeader("Authorization");
-        String username = null;
-        String token = null;
+        String jwt = null;
+        Integer userId = null;
 
-        try {
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                token = authHeader;
-                Claims claims = jwtUtil.extractAllClaims(token);
-                username = claims.getSubject();
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            jwt = authorizationHeader.substring(7);
+            try {
+                Claims claims = jwtUtil.extractAllClaims(jwt);
+                userId = (Integer) claims.get("userId"); 
+            } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException |
+                     SignatureException | IllegalArgumentException e) {
             }
+        }
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails details = userDetailsService.loadUserByUsername(username);
-                if (jwtUtil.validateToken(token, details)) {
-                    UsernamePasswordAuthenticationToken auth =
-                            new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
-                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
+        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(String.valueOf(userId));
+
+            if (jwtUtil.validateToken(jwt, userDetails)) {
+                Claims claims = jwtUtil.extractAllClaims(jwt);
+                Collection<? extends GrantedAuthority> authorities =
+                        AuthorityUtils.createAuthorityList((String) claims.get("role"));
+
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, authorities);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        } catch (Exception ignored) {
         }
 
         filterChain.doFilter(request, response);

@@ -1,94 +1,70 @@
 package com.edutech.progressive.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.*;
-
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 import com.edutech.progressive.jwt.JwtRequestFilter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@EnableWebSecurity
 @Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
-    private final JwtRequestFilter jwtRequestFilter;
     private final UserDetailsService userDetailsService;
+    private final JwtRequestFilter jwtRequestFilter;
     private final PasswordEncoder passwordEncoder;
 
-    public SecurityConfig(JwtRequestFilter jwtRequestFilter,
-                          UserDetailsService userDetailsService,
+    @Autowired
+    public SecurityConfig(UserDetailsService userDetailsService,
+                          JwtRequestFilter jwtRequestFilter,
                           PasswordEncoder passwordEncoder) {
-        this.jwtRequestFilter = jwtRequestFilter;
         this.userDetailsService = userDetailsService;
+        this.jwtRequestFilter = jwtRequestFilter;
         this.passwordEncoder = passwordEncoder;
     }
 
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        // Use our custom UserDetailsService with encoder
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        // Stateless + disable CSRF for API
-        http.csrf().disable();
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-        // Return 401 when not authenticated, 403 when authenticated but not authorized
-        AuthenticationEntryPoint unauthorizedEntryPoint = new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
-        AccessDeniedHandler accessDeniedHandler = (request, response, ex) -> {
-            response.setStatus(HttpStatus.FORBIDDEN.value());
-        };
-        http.exceptionHandling()
-                .authenticationEntryPoint(unauthorizedEntryPoint)
-                .accessDeniedHandler(accessDeniedHandler);
-
-        // Public endpoints
-        http.authorizeRequests()
-                .antMatchers("/auth/**").permitAll()
-
-                // ===== Role/Authority rules expected by Day 12 tests =====
-                // Doctor management: only DOCTOR can create/update/delete doctors
-                .antMatchers(HttpMethod.POST, "/doctor/**").hasAuthority("DOCTOR")
-                .antMatchers(HttpMethod.PUT,  "/doctor/**").hasAuthority("DOCTOR")
-                .antMatchers(HttpMethod.DELETE,"/doctor/**").hasAuthority("DOCTOR")
-
-                // Read endpoints can be open or authenticated; keep conservative:
-                .antMatchers(HttpMethod.GET, "/doctor/**").authenticated()
-
-                // Clinic: assume DOCTOR manages clinics (create/update/delete)
+        http.cors().and().csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/user/register", "/user/login").permitAll()
+                .antMatchers(HttpMethod.GET, "/patient/**").hasAnyAuthority("PATIENT", "DOCTOR")
+                .antMatchers(HttpMethod.POST, "/patient/**").hasAuthority("DOCTOR")
+                .antMatchers(HttpMethod.PUT, "/patient/**").hasAuthority("PATIENT")
+                .antMatchers(HttpMethod.DELETE, "/patient/**").hasAuthority("PATIENT")
+                .antMatchers(HttpMethod.GET, "/clinic/**").hasAnyAuthority("PATIENT", "DOCTOR")
                 .antMatchers(HttpMethod.POST, "/clinic/**").hasAuthority("DOCTOR")
-                .antMatchers(HttpMethod.PUT,  "/clinic/**").hasAuthority("DOCTOR")
-                .antMatchers(HttpMethod.DELETE,"/clinic/**").hasAuthority("DOCTOR")
-                .antMatchers(HttpMethod.GET, "/clinic/**").authenticated()
+                .antMatchers(HttpMethod.PUT, "/clinic/**").hasAuthority("DOCTOR")
+                .antMatchers(HttpMethod.DELETE, "/clinic/**").hasAuthority("DOCTOR")
+                .antMatchers(HttpMethod.GET, "/doctor/**").hasAnyAuthority("PATIENT", "DOCTOR")
+                .antMatchers(HttpMethod.POST, "/doctor/**").hasAuthority("DOCTOR")
+                .antMatchers(HttpMethod.PUT, "/doctor/**").hasAuthority("DOCTOR")
+                .antMatchers(HttpMethod.DELETE, "/doctor/**").hasAuthority("DOCTOR")
+                .antMatchers(HttpMethod.GET, "/appointment/**").hasAnyAuthority("PATIENT", "DOCTOR")
+                .antMatchers(HttpMethod.POST, "/appointment/**").hasAuthority("PATIENT")
+                .antMatchers(HttpMethod.DELETE, "/appointment/**").hasAuthority("DOCTOR")
+                .antMatchers("/billing/**").hasAnyAuthority("PATIENT", "DOCTOR")
+                .anyRequest().authenticated()
+                .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-                // Patient read/update are authenticated; adjust if Day tests require otherwise
-                .antMatchers(HttpMethod.GET, "/patient/**").authenticated()
-                .antMatchers(HttpMethod.PUT, "/patient/**").authenticated()
-                .antMatchers(HttpMethod.POST, "/patient/**").authenticated()
-                .antMatchers(HttpMethod.DELETE, "/patient/**").authenticated()
-
-                // Everything else must be authenticated
-                .anyRequest().authenticated();
-
-        // Add JWT filter before username/password filter
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 

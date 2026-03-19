@@ -1,40 +1,46 @@
 package com.edutech.progressive.entity;
 
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
-@Table(name = "doctor")
-public class Doctor {
+@Table(name="doctor")
+public class Doctor implements Comparable<Doctor>{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "doctor_id")
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name="doctor_id")
     private int doctorId;
 
-    @Column(name = "full_name", nullable = false, length = 255)
+    @Column(name = "full_name",nullable = false)
     private String fullName;
 
-    @Column(name = "specialty", length = 100)
+    @Column(name="specialty")
     private String specialty;
 
-    @Column(name = "contact_number", length = 15)
+    @Column(name="contact_number")
     private String contactNumber;
 
-    @Column(name = "email", nullable = false, length = 100)
+    @Column(name = "email",nullable = false)
     private String email;
 
-    @Column(name = "years_of_experience")
-    private Integer yearsOfExperience;
+    @Column(name="years_of_experience")
+    private int yearsOfExperience;
 
-    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Clinic> clinics = new ArrayList<>();
+    // @JsonIgnore
+    // @OneToMany(mappedBy = "doctor", orphanRemoval = true, cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    // private List<Clinic> clinics=new ArrayList<>();
 
-    public Doctor() {}
 
-    public Doctor(int doctorId, String fullName, String specialty, String contactNumber, String email, Integer yearsOfExperience) {
+    public Doctor() {
+    }
+    
+
+    public Doctor(int doctorId, String fullName, String specialty, String contactNumber, String email,int yearsOfExperience) {
         this.doctorId = doctorId;
         this.fullName = fullName;
         this.specialty = specialty;
@@ -83,19 +89,31 @@ public class Doctor {
         this.email = email;
     }
 
-    public Integer getYearsOfExperience() {
+    public int getYearsOfExperience() {
         return yearsOfExperience;
     }
 
-    public void setYearsOfExperience(Integer yearsOfExperience) {
+    public void setYearsOfExperience(int yearsOfExperience) {
         this.yearsOfExperience = yearsOfExperience;
     }
 
-    public List<Clinic> getClinics() {
-        return clinics;
+
+
+    // public List<Clinic> getClinics() {
+    //     return clinics;
+    // }
+
+
+    // public void setClinics(List<Clinic> clinics) {
+    //     this.clinics = clinics;
+    // }
+
+    
+    @Override
+    public int compareTo(Doctor o) {
+        return Integer.compare(this.yearsOfExperience, o.yearsOfExperience);
     }
 
-    public void setClinics(List<Clinic> clinics) {
-        this.clinics = clinics;
-    }
+   
+
 }

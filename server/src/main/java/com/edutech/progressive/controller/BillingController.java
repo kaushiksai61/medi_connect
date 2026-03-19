@@ -1,75 +1,71 @@
 package com.edutech.progressive.controller;
 
 import com.edutech.progressive.entity.Billing;
-import com.edutech.progressive.service.BillingService;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import com.edutech.progressive.service.BillingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/billing")
 public class BillingController {
 
-    private final BillingService billingService;
-
-    public BillingController(BillingService billingService) {
-        this.billingService = billingService;
-    }
+    @Autowired
+    private BillingService billingService;
 
     @GetMapping
     public ResponseEntity<List<Billing>> getAllBills() {
         try {
-            return ResponseEntity.ok(billingService.getAllBills());
+            List<Billing> bills = billingService.getAllBills();
+            return new ResponseEntity<>(bills, HttpStatus.OK);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/{billingId}")
+    public ResponseEntity<Billing> getBillById(@PathVariable int billingId) {
+        try {
+            Billing bill = billingService.getBillById(billingId);
+            return new ResponseEntity<>(bill, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping
     public ResponseEntity<Integer> createBill(@RequestBody Billing billing) {
         try {
-            Integer id = billingService.createBill(billing);
-            return ResponseEntity.status(HttpStatus.CREATED).body(id);
+            int billingId = billingService.createBill(billing);
+            return new ResponseEntity<>(billingId, HttpStatus.CREATED);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @DeleteMapping("/{billingID}")
-    public ResponseEntity<Void> deleteBill(@PathVariable("billingID") int billingId) {
+    @DeleteMapping("/{billingId}")
+    public ResponseEntity<Void> deleteBill(@PathVariable int billingId) {
         try {
-            Billing b = billingService.getBillById(billingId);
-            if (b == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
             billingService.deleteBill(billingId);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
-    @GetMapping("/{billingID}")
-    public ResponseEntity<Billing> getBillById(@PathVariable("billingID") int billingId) {
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<List<Billing>> getBillsByPatientId(@PathVariable int patientId) {
         try {
-            Billing bill = billingService.getBillById(billingId);
-            if (bill == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-            return ResponseEntity.ok(bill);
+            List<Billing> bills = billingService.getBillsByPatientId(patientId);
+            return new ResponseEntity<>(bills, HttpStatus.OK);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-
-    @GetMapping("/patient/{patientID}")
-    public ResponseEntity<List<Billing>> getBillsByPatient(@PathVariable("patientID") int patientId) {
-        try {
-            List<Billing> list = billingService.getBillsByPatient(patientId);
-            return ResponseEntity.ok(list);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 }
