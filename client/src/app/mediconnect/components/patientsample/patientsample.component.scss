@@ -1,33 +1,122 @@
-.patient-container {
-  border: 1px solid #ccc;
-  padding: 16px;
+/* Page Background Container */
+.page-background {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: calc(100vh - 61px);
+  background: #cdded8; 
+  padding: 40px 20px;
+  font-family: 'Inter', 'Roboto', sans-serif;
+}
+
+/* Main Card */
+.details-container {
+  width: 100%;
+  max-width: 450px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 40px 30px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+}
+
+/* Header Typography */
+.card-header {
+  text-align: center;
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f0f7f7;
+}
+
+.card-header h2 {
+  font-size: 24px;
+  color: #5E9896;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  letter-spacing: 0.5px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #8c9e9c;
+  margin: 0;
+}
+
+/* Details Content */
+.details-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+/* Individual Data Rows */
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #fdfdfd;
+  border: 1px solid #d8e0df;
+  border-left: 4px solid #5E9896; /* Teal accent edge */
   border-radius: 8px;
-  background-color: #f9f9f9;
-  max-width: 400px;
-  margin: auto;
+  transition: background-color 0.2s ease;
+}
 
-  h2 {
-      text-align: center;
-      color: #333;
-  }
+.detail-row:hover {
+  background: #f0f7f7;
+}
 
-  p {
-      margin: 8px 0;
-      color: #555;
-  }
+.detail-label {
+  font-size: 12px;
+  color: #8c9e9c;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
-  button {
-      display: block;
-      margin: 16px auto;
-      padding: 8px 16px;
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+.detail-value {
+  font-size: 14px;
+  color: #3b504e;
+  font-weight: 700;
+  text-align: right;
+  max-width: 60%; /* Prevents long addresses from breaking the layout */
+  word-wrap: break-word;
+}
 
-      &:hover {
-          background-color: #0056b3;
-      }
-  }
+/* Button */
+.action-btn {
+  width: 100%;
+  padding: 14px;
+  background: #5E9896;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+  background: #4a7d7b;
+}
+
+/* Footer Links */
+.card-footer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.card-footer .link {
+  font-size: 14px;
+  color: #5E9896;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.card-footer .link:hover {
+  color: #4a7d7b;
+  text-decoration: underline;
 }

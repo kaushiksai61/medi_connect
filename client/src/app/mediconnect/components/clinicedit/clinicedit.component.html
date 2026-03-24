@@ -1,60 +1,79 @@
-<div class="form-container">
-  <h2>Update Clinic</h2>
-  <form [formGroup]="clinicForm" (ngSubmit)="onSubmit()">
-      
-      <div class="form-group">
-          <label for="doctor">Doctor Name:</label>
-          <input type="text" id="doctor" formControlName="doctor" [readonly]="true" class="readonly-input" />
-      </div>
+<app-navbar></app-navbar>
 
-      
-      <div class="form-group">
-          <label for="clinicName">Clinic Name:</label>
-          <input type="text" id="clinicName" formControlName="clinicName" />
-          <div class="error" *ngIf="clinicForm.get('clinicName')?.invalid && clinicForm.get('clinicName')?.touched">
-              Clinic Name is required and must have at least 2 characters.
+<div class="page-background">
+  <div class="form-container">
+    <div class="form-header">
+      <h2>Update Clinic</h2>
+      <p class="subtitle">Modify clinic details below</p>
+    </div>
+
+    <form [formGroup]="clinicForm" (ngSubmit)="onSubmit()" class="clinic-form">
+
+      <div class="input-container">
+        <div class="input-group readonly-group">
+          <div class="input-field-wrapper">
+            <label for="doctor">Doctor Name</label>
+            <input type="text" id="doctor" formControlName="doctor" [readonly]="true" class="readonly-input" />
           </div>
+        </div>
       </div>
 
-      
-      <div class="form-group">
-          <label for="location">Location:</label>
-          <input type="text" id="location" formControlName="location" />
-          <div class="error" *ngIf="clinicForm.get('location')?.invalid && clinicForm.get('location')?.touched">
-              Location is required.
+      <div class="input-container">
+        <div class="input-group" [class.has-error]="clinicForm.get('clinicName')?.invalid && clinicForm.get('clinicName')?.touched">
+          <div class="input-field-wrapper">
+            <label for="clinicName">Clinic Name</label>
+            <input type="text" id="clinicName" formControlName="clinicName" placeholder="Enter clinic name" />
           </div>
+        </div>
+        <div class="error" *ngIf="clinicForm.get('clinicName')?.invalid && clinicForm.get('clinicName')?.touched">
+          <small>Clinic Name is required and must have at least 2 characters.</small>
+        </div>
       </div>
 
-      
-      <div class="form-group">
-          <label for="contactNumber">Contact Number:</label>
-          <input type="text" id="contactNumber" formControlName="contactNumber" />
-          <div class="error"
-              *ngIf="clinicForm.get('contactNumber')?.invalid && clinicForm.get('contactNumber')?.touched">
-              Contact Number is required and must be a 10-digit number.
+      <div class="input-container">
+        <div class="input-group" [class.has-error]="clinicForm.get('location')?.invalid && clinicForm.get('location')?.touched">
+          <div class="input-field-wrapper">
+            <label for="location">Location</label>
+            <input type="text" id="location" formControlName="location" placeholder="E.g., Downtown Medical Center" />
           </div>
+        </div>
+        <div class="error" *ngIf="clinicForm.get('location')?.invalid && clinicForm.get('location')?.touched">
+          <small>Location is required.</small>
+        </div>
       </div>
 
-      
-      <div class="form-group">
-          <label for="establishedYear">Established Year:</label>
-          <input type="number" id="establishedYear" formControlName="establishedYear" />
-          <div class="error"
-              *ngIf="clinicForm.get('establishedYear')?.invalid && clinicForm.get('establishedYear')?.touched">
-              Established Year is required and must be a valid year.
+      <div class="input-container">
+        <div class="input-group" [class.has-error]="clinicForm.get('contactNumber')?.invalid && clinicForm.get('contactNumber')?.touched">
+          <div class="input-field-wrapper">
+            <label for="contactNumber">Contact Number</label>
+            <input type="text" id="contactNumber" formControlName="contactNumber" placeholder="Enter 10-digit number" />
           </div>
+        </div>
+        <div class="error" *ngIf="clinicForm.get('contactNumber')?.invalid && clinicForm.get('contactNumber')?.touched">
+          <small>Contact Number is required and must be a 10-digit number.</small>
+        </div>
       </div>
 
-      
-      <div class="form-actions">
-          <button type="submit" [disabled]="clinicForm.invalid">Submit</button>
+      <div class="input-container">
+        <div class="input-group" [class.has-error]="clinicForm.get('establishedYear')?.invalid && clinicForm.get('establishedYear')?.touched">
+          <div class="input-field-wrapper">
+            <label for="establishedYear">Established Year</label>
+            <input type="number" id="establishedYear" formControlName="establishedYear" placeholder="E.g., 2015" />
+          </div>
+        </div>
+        <div class="error" *ngIf="clinicForm.get('establishedYear')?.invalid && clinicForm.get('establishedYear')?.touched">
+          <small>Established Year is required and must be a valid year.</small>
+        </div>
       </div>
+
+      <button type="submit" class="form-btn" [disabled]="clinicForm.invalid">Update Details</button>
+
       <div class="form-footer">
-          <a routerLink="/mediconnect" class="link">Dashboard</a>
+        <a routerLink="/mediconnect" class="link">Return to Dashboard</a>
       </div>
-  </form>
+    </form>
 
-
-  <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
-  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="success-message"><p>{{ successMessage }}</p></div>
+    <div *ngIf="errorMessage" class="error-message"><p>{{ errorMessage }}</p></div>
+  </div>
 </div>

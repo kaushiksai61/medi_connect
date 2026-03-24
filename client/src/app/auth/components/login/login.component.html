@@ -4,73 +4,75 @@
     <span class="mc-title">MediConnect</span>
   </div>
 
-  <button class="mc-toggle" aria-label="Toggle menu" aria-expanded="false" (click)="isOpen = !isOpen">
-    <span class="mc-toggle__bar"></span>
-    <span class="mc-toggle__bar"></span>
-    <span class="mc-toggle__bar"></span>
-  </button>
-
   <div class="mc-navbar__actions" [class.is-open]="isOpen">
     <a routerLink="/auth/login" class="mc-link">Login</a>
     <a routerLink="/auth/register" class="mc-link mc-link--primary">Sign up</a>
   </div>
 </nav>
 
-<div class="login-form-container">
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-    <h2 class="form-title">Login</h2>
-    <div class="form-group">
-      <label for="username">Username</label>
-      <input
-        id="username"
-        formControlName="username"
-        type="text"
-        placeholder="Enter Username"
-        class="form-input"
-      />
-      <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" class="error">
-        <small *ngIf="loginForm.get('username')?.hasError('required')">Username is required.</small>
-        <small *ngIf="loginForm.get('username')?.hasError('pattern')">
-          Username cannot contain special characters.
-        </small>
+<div class="page-background">
+  <div class="wide-card">
+    
+    <div class="illustration-section">
+      <h1 class="hero-brand-name">MediConnect</h1>
+      <img src="assets/Loginimage.png" alt="Healthcare Professionals" class="hero-image" />
+    </div>
+    
+    <div class="form-section">
+      <div class="inner-form-card">
+        
+        <div class="form-header">
+          <h2 class="welcome-text">Welcome Back!</h2>
+          <p class="subtitle">Please enter your details to continue</p>
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+          
+          <div class="input-container">
+            <div class="input-group" [class.has-error]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+              <span class="input-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <div class="input-divider"></div>
+              <div class="input-field-wrapper">
+                <label for="username">Username</label>
+                <input id="username" formControlName="username" type="text" placeholder="Enter Username" />
+              </div>
+            </div>
+            <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" class="error">
+              <small *ngIf="loginForm.get('username')?.hasError('required')">Username is required.</small>
+              <small *ngIf="loginForm.get('username')?.hasError('pattern')">No special characters allowed.</small>
+            </div>
+          </div>
+
+          <div class="input-container">
+            <div class="input-group" [class.has-error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+              <span class="input-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <div class="input-divider"></div>
+              <div class="input-field-wrapper">
+                <label for="password">Password</label>
+                <input id="password" formControlName="password" type="password" placeholder="Enter Password" />
+              </div>
+            </div>
+            <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error">
+              <small *ngIf="loginForm.get('password')?.hasError('required')">Password is required.</small>
+              <small *ngIf="loginForm.get('password')?.hasError('minlength')">At least 8 characters long.</small>
+              <small *ngIf="loginForm.get('password')?.hasError('pattern')">Needs 1 capital & 1 number.</small>
+            </div>
+          </div>
+
+          <button type="submit" class="form-btn" [disabled]="loginForm.invalid">LOGIN</button>
+
+          <div class="form-footer">
+            <p>Don't have an account? <a routerLink="/auth/register" class="link">Sign up</a></p>
+          </div>
+
+          <div *ngIf="successMessage" class="success-message"><p>{{ successMessage }}</p></div>
+          <div *ngIf="errorMessage" class="error-message"><p>{{ errorMessage }}</p></div>
+        </form>
       </div>
     </div>
-
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input
-        id="password"
-        formControlName="password"
-        type="password"
-        placeholder="Enter Password"
-        class="form-input"
-      />
-      <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error">
-        <small *ngIf="loginForm.get('password')?.hasError('required')">Password is required.</small>
-        <small *ngIf="loginForm.get('password')?.hasError('minlength')">
-          Password must be at least 8 characters long.
-        </small>
-        <small *ngIf="loginForm.get('password')?.hasError('pattern')">
-          Password must contain at least one capital letter and one numeric digit.
-        </small>
-      </div>
-    </div>
-
-    <button type="submit" class="form-btn" [disabled]="loginForm.invalid">Login</button>
-
-    <div class="form-footer">
-      <p>
-        Don't have an account?
-        <a routerLink="/auth/register" class="link">Sign up</a>
-      </p>
-    </div>
-
-    <div *ngIf="successMessage" class="success-message">
-      <p>{{ successMessage }}</p>
-    </div>
-
-    <div *ngIf="errorMessage" class="error-message">
-      <p>{{ errorMessage }}</p>
-    </div>
-  </form>
+  </div>
 </div>

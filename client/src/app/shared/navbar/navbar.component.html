@@ -1,17 +1,21 @@
-<nav class="navbar" >
+<nav class="mc-navbar" role="navigation" aria-label="Primary">
+  <div class="nav-left">
+    <div class="mc-navbar__brand" routerLink="/mediconnect" aria-label="MediConnect Home">
+      <span class="mc-logo">MC</span>
+      <span class="mc-title">MediConnect</span>
+    </div>
+
     <ul class="navbar-list">
-      <li>
-        <a routerLink="/mediconnect" class="nav-link app-name" aria-label="Home">MediConnect</a>
-      </li>
-  
       <li *ngIf="role === 'DOCTOR'">
-        <a routerLink="/mediconnect/clinic" class="nav-link">Add Clinic</a>
+        <a routerLink="/mediconnect/clinic" class="mc-link" routerLinkActive="active">Add Clinic</a>
       </li>
       <li *ngIf="role !== 'DOCTOR'">
-        <a routerLink="/mediconnect/appointment" class="nav-link">Book Appointment</a>
+        <a routerLink="/mediconnect/appointment" class="mc-link" routerLinkActive="active">Book Appointment</a>
       </li>
     </ul>
-  
-      <app-logout></app-logout>
-  </nav>
-  
+  </div>
+
+  <div class="nav-right">
+    <app-logout></app-logout>
+  </div>
+</nav>

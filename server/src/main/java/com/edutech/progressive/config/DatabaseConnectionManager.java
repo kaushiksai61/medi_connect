@@ -11,8 +11,7 @@ import java.util.Properties;
 public class DatabaseConnectionManager {
 private static final Properties properties=new Properties();
 
-    static
-    {
+    static{
         loadProperties();
     }
 

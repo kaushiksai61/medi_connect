@@ -1,54 +1,81 @@
-<div class="form-container">
-  <h2>Create Appointment</h2>
-  <form [formGroup]="appointmentForm" (ngSubmit)="onSubmit()">
+<app-navbar></app-navbar>
 
-      <div class="form-group">
-          <label for="patientId">Patient:</label>
-          <input type="number" id="patientId" formControlName="patientId" />
+<div class="page-background">
+  <div class="form-container">
+    <div class="form-header">
+      <h2>Book Appointment</h2>
+      <p class="subtitle">Please provide the details for your visit</p>
+    </div>
+
+    <form [formGroup]="appointmentForm" (ngSubmit)="onSubmit()" class="appointment-form">
+
+      <div class="input-container">
+        <div class="input-group">
+          <div class="input-field-wrapper">
+            <label for="patientId">Patient ID</label>
+            <input type="number" id="patientId" formControlName="patientId" placeholder="Enter Patient ID" />
+          </div>
+        </div>
       </div>
 
-      <div class="form-group">
-          <label for="clinic">Clinic:</label>
-          <select formControlName="clinic">
-              <option value="">Select a Clinic</option>
+      <div class="input-container">
+        <div class="input-group">
+          <div class="input-field-wrapper">
+            <label for="clinic">Select Clinic</label>
+            <select formControlName="clinic" id="clinic">
+              <option value="" disabled selected>Select a Clinic</option>
               <option *ngFor="let clinic of clinics" [ngValue]="clinic">
-                  {{ clinic.clinicName }}
+                {{ clinic.clinicName }}
               </option>
-          </select>
-      </div>
-
-      <div class="form-group">
-          <label for="appointmentDate">Appointment Date:</label>
-          <input type="date" id="appointmentDate" formControlName="appointmentDate" />
-          <div
-              *ngIf="appointmentForm.controls['appointmentDate'].invalid && appointmentForm.controls['appointmentDate'].touched">
-              Appointment date is required.
+            </select>
           </div>
+        </div>
       </div>
 
-      <div class="form-group">
-          <label for="status">Status:</label>
-          <input type="text" id="status" formControlName="status" />
-          <div *ngIf="appointmentForm.controls['status'].invalid && appointmentForm.controls['status'].touched">
-              Status is required.
+      <div class="input-container">
+        <div class="input-group" [class.has-error]="appointmentForm.controls['appointmentDate'].invalid && appointmentForm.controls['appointmentDate'].touched">
+          <div class="input-field-wrapper">
+            <label for="appointmentDate">Appointment Date</label>
+            <input type="date" id="appointmentDate" formControlName="appointmentDate" />
           </div>
+        </div>
+        <div class="error" *ngIf="appointmentForm.controls['appointmentDate'].invalid && appointmentForm.controls['appointmentDate'].touched">
+          <small>Appointment date is required.</small>
+        </div>
       </div>
 
-      <div class="form-group">
-          <label for="purpose">Purpose:</label>
-          <textarea id="purpose" formControlName="purpose"></textarea>
-          <div *ngIf="appointmentForm.controls['purpose'].invalid && appointmentForm.controls['purpose'].touched">
-              Purpose must be at least 5 characters long.
+      <div class="input-container">
+        <div class="input-group" [class.has-error]="appointmentForm.controls['status'].invalid && appointmentForm.controls['status'].touched">
+          <div class="input-field-wrapper">
+            <label for="status">Status</label>
+            <input type="text" id="status" formControlName="status" placeholder="E.g., Pending" />
           </div>
+        </div>
+        <div class="error" *ngIf="appointmentForm.controls['status'].invalid && appointmentForm.controls['status'].touched">
+          <small>Status is required.</small>
+        </div>
       </div>
 
-      <div class="form-actions">
-          <button type="submit" [disabled]="appointmentForm.invalid">Submit</button>
+      <div class="input-container">
+        <div class="input-group" [class.has-error]="appointmentForm.controls['purpose'].invalid && appointmentForm.controls['purpose'].touched">
+          <div class="input-field-wrapper">
+            <label for="purpose">Purpose of Visit</label>
+            <textarea id="purpose" formControlName="purpose" placeholder="Briefly describe the reason for your appointment"></textarea>
+          </div>
+        </div>
+        <div class="error" *ngIf="appointmentForm.controls['purpose'].invalid && appointmentForm.controls['purpose'].touched">
+          <small>Purpose must be at least 5 characters long.</small>
+        </div>
       </div>
+
+      <button type="submit" class="form-btn" [disabled]="appointmentForm.invalid">Submit Request</button>
+
       <div class="form-footer">
-          <a routerLink="/mediconnect" class="link">Dashboard</a>
+        <a routerLink="/mediconnect" class="link">Return to Dashboard</a>
       </div>
-  </form>
-  <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
-  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+    </form>
+
+    <div *ngIf="successMessage" class="success-message"><p>{{ successMessage }}</p></div>
+    <div *ngIf="errorMessage" class="error-message"><p>{{ errorMessage }}</p></div>
+  </div>
 </div>

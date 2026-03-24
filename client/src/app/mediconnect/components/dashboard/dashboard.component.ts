@@ -18,12 +18,10 @@ export class DashboardComponent implements OnInit {
     clinics: Clinic[] = [];
     appointments: Appointment[] = [];
     patients: Patient[] = [];
-
     role!: string | null;
     userId!: number;
     doctorId!: number;
     patientId!: number;
-
     selectedClinicId: number | undefined;
     selectClinicAppointments: Appointment[] = [];
 
@@ -34,145 +32,113 @@ export class DashboardComponent implements OnInit {
         this.userId = Number(localStorage.getItem("user_id"));
         this.doctorId = Number(localStorage.getItem("doctor_id"));
         this.patientId = Number(localStorage.getItem("patient_id"));
+
         if (this.role === 'DOCTOR') {
-            console.log('loadDoctorData');
             this.loadDoctorData();
-        }
-        else {
-            console.log('loadPatientData');
+        } else {
             this.loadPatientData();
         }
     }
 
     loadDoctorData(): void {
         this.mediconnectService.getDoctorById(this.doctorId).subscribe({
-            next: (response) => {
-                this.doctorDetails = response;
-            },
-            error: (error) => console.log('Error loading loggedIn doctor details', error)
+            next: (response) => this.doctorDetails = response,
+            error: (err) => console.log('Error loading doctor', err)
         });
 
         this.mediconnectService.getClinicsByDoctorId(this.doctorId).subscribe({
             next: (response) => {
                 this.clinics = response;
-                if (this.clinics.length > 0) {
-                    this.selectedClinicId = this.clinics[0].clinicId;
-                    this.loadAppointments(this.selectedClinicId);
-                }
+                this.appointments = []; 
+                this.clinics.forEach(clinic => {
+                    this.mediconnectService.getAppointmentsByClinic(clinic.clinicId).subscribe({
+                        next: (res) => this.appointments = [...this.appointments, ...res]
+                    });
+                });
             },
-            error: (error) => console.log('Error loading clinics', error)
+            error: (err) => console.log('Error loading clinics', err)
         });
 
         this.mediconnectService.getAllPatients().subscribe({
-            next: (response) => {
-                this.patients = response;
-            },
-            error: (error) => console.log('Error loading all patients.', error)
+            next: (response) => this.patients = response,
+            error: (err) => console.log('Error loading patients', err)
         });
     }
 
-    loadAppointments(clinicId: number): void {
-        this.mediconnectService.getAppointmentsByClinic(clinicId).subscribe({
-            next: (response) => {
-                this.selectClinicAppointments = response;
-            },
-            error: (error) => console.log('Error loading appointments', error),
+    loadPatientData(): void {
+        this.mediconnectService.getPatientById(this.patientId).subscribe({
+            next: (res) => this.patientDetails = res
+        });
+        this.mediconnectService.getAppointmentsByPatient(this.patientId).subscribe({
+            next: (res) => this.appointments = res
         });
     }
 
     onClinicSelect(clinic: Clinic): void {
         this.selectedClinicId = clinic.clinicId;
-        this.loadAppointments(this.selectedClinicId);
     }
 
-    loadPatientData(): void {
-        this.mediconnectService.getPatientById(this.patientId).subscribe({
-            next: (response) => {
-                this.patientDetails = response;
-            },
-            error: (error) => console.log('Error loading loggedIn patient details', error)
-        });
-
-        this.mediconnectService.getAppointmentsByPatient(this.patientId).subscribe({
-            next: (response) => {
-                this.appointments = response;
-            },
-            error: (error) => console.log('Error loading existing appointments.', error)
-        });
-
-        this.mediconnectService.getAllClinics().subscribe({
-            next: (response) => {
-                this.clinics = response;
-            },
-            error: (error) => console.log('Error loading clinics', error)
-        });
-
-        this.mediconnectService.getAllDoctors().subscribe({
-            next: (response) => {
-                this.doctors = response;
-            },
-            error: (error) => console.log('Error loading doctors', error)
-        });
-    }
-
-    navigateToEditPatient(): void {
-        this.router.navigate(['mediconnect/patient/edit', this.patientDetails.patientId]);
-    }
-
-    deletePatient(): void {
-        if (confirm('Are you sure you want to delete this patient profile?')) {
-            this.mediconnectService.deletePatient(this.patientId).subscribe({
-                next: () => {
-                    this.router.navigate(['/']);
-                },
-                error: (error) => console.error('Error deleting patient:', error)
-
-            })
-        }
-    }
-
-    navigateToEditDoctor(): void {
-        this.router.navigate(['mediconnect/doctor/edit', this.doctorDetails.doctorId]);
-    }
-
-    deleteDoctor(): void {
-        if (confirm('Are you sure you want to delete this doctor profile?')) {
-            this.mediconnectService.deleteDoctor(this.doctorId).subscribe({
-                next: () => {
-                    this.router.navigate(['/']);
-                },
-                error: (error) => console.error('Error deleting doctor:', error)
-
-            })
-        }
-    }
-
-    navigateToEditClinic(clinicId: number): void {
-        this.router.navigate(['mediconnect/clinic/edit', clinicId]);
-    }
-
-    deleteClinic(clinicId: number): void {
-        if (confirm('Are you sure you want to delete this clinic?')) {
-            this.mediconnectService.deleteClinic(clinicId).subscribe({
-                next: () => {
-                    this.loadDoctorData();
-                },
-                error: (error) => console.error('Error deleting clinic:', error)
-
-            })
+    acceptAppointment(appointment: Appointment): void {
+        if (confirm('Accept this appointment?')) {
+            appointment.status = 'Accepted';
+            this.mediconnectService.updateAppointment(appointment).subscribe({
+                next: () => this.loadDoctorData()
+            });
         }
     }
 
     cancelAppointment(appointment: Appointment): void {
-        if (confirm('Are you sure you want to cancel this appointment?')) {
-            appointment.status = "Cancel";
+        if (confirm('Cancel this appointment?')) {
+            appointment.status = "Cancelled";
             this.mediconnectService.updateAppointment(appointment).subscribe({
-                next: () => {
-                    this.loadDoctorData();
-                },
-                error: (error) => console.error('Error cancelling appointment:', error)
-
-            })
+                next: () => this.loadDoctorData()
+            });
         }
     }
+
+    // Navigation methods
+    navigateToEditDoctor(): void { this.router.navigate(['mediconnect/doctor/edit', this.doctorId]); }
+    navigateToEditClinic(id: number): void { this.router.navigate(['mediconnect/clinic/edit', id]); }
+    navigateToEditPatient(): void { this.router.navigate(['mediconnect/patient/edit', this.patientId]); }
+    
+// DELETE DOCTOR
+deleteDoctor(): void {
+    if (confirm('Are you sure you want to delete your doctor profile? This will log you out.')) {
+        this.mediconnectService.deleteDoctor(this.doctorId).subscribe({
+            next: () => {
+                alert('Profile deleted successfully.');
+                localStorage.clear(); // Clear session
+                this.router.navigate(['/auth/login']); // Redirect to login
+            },
+            error: (error) => console.error('Error deleting doctor:', error)
+        });
+    }
+}
+
+// DELETE CLINIC
+deleteClinic(clinicId: number): void {
+    if (confirm('Are you sure you want to delete this clinic?')) {
+        this.mediconnectService.deleteClinic(clinicId).subscribe({
+            next: () => {
+                alert('Clinic deleted successfully.');
+                this.loadDoctorData(); // Refresh the list
+            },
+            error: (error) => console.error('Error deleting clinic:', error)
+        });
+    }
+}
+
+// DELETE PATIENT
+deletePatient(): void {
+    if (confirm('Are you sure you want to delete your patient profile?')) {
+        this.mediconnectService.deletePatient(this.patientId).subscribe({
+            next: () => {
+                alert('Profile deleted successfully.');
+                localStorage.clear();
+                this.router.navigate(['/auth/login']);
+            },
+            error: (error) => console.error('Error deleting patient:', error)
+        });
+    }
+}
 }
