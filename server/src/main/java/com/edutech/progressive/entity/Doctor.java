@@ -39,7 +39,6 @@ public class Doctor implements Comparable<Doctor>{
     public Doctor() {
     }
     
-
     public Doctor(int doctorId, String fullName, String specialty, String contactNumber, String email,int yearsOfExperience) {
         this.doctorId = doctorId;
         this.fullName = fullName;
@@ -117,3 +116,5 @@ public class Doctor implements Comparable<Doctor>{
    
 
 }
+
+

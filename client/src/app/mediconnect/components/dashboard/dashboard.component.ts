@@ -32,7 +32,7 @@ export class DashboardComponent implements OnInit {
         this.userId = Number(localStorage.getItem("user_id"));
         this.doctorId = Number(localStorage.getItem("doctor_id"));
         this.patientId = Number(localStorage.getItem("patient_id"));
-
+       
         if (this.role === 'DOCTOR') {
             this.loadDoctorData();
         } else {
@@ -101,44 +101,45 @@ export class DashboardComponent implements OnInit {
     navigateToEditClinic(id: number): void { this.router.navigate(['mediconnect/clinic/edit', id]); }
     navigateToEditPatient(): void { this.router.navigate(['mediconnect/patient/edit', this.patientId]); }
     
-// DELETE DOCTOR
-deleteDoctor(): void {
-    if (confirm('Are you sure you want to delete your doctor profile? This will log you out.')) {
-        this.mediconnectService.deleteDoctor(this.doctorId).subscribe({
-            next: () => {
-                alert('Profile deleted successfully.');
-                localStorage.clear(); // Clear session
-                this.router.navigate(['/auth/login']); // Redirect to login
-            },
-            error: (error) => console.error('Error deleting doctor:', error)
-        });
+    // DELETE DOCTOR
+    deleteDoctor(): void {
+        if (confirm('Are you sure you want to delete your doctor profile?')) {
+            this.mediconnectService.deleteDoctor(this.doctorId).subscribe({
+                next: () => {
+                    alert('Profile deleted successfully.');
+                    localStorage.clear(); // Clear session
+                    this.router.navigate(['/auth/login']); // Redirect to login
+                },
+                error: (error) => console.error('Error deleting doctor:', error)
+            });
+        }
     }
-}
 
-// DELETE CLINIC
-deleteClinic(clinicId: number): void {
-    if (confirm('Are you sure you want to delete this clinic?')) {
-        this.mediconnectService.deleteClinic(clinicId).subscribe({
-            next: () => {
-                alert('Clinic deleted successfully.');
-                this.loadDoctorData(); // Refresh the list
-            },
-            error: (error) => console.error('Error deleting clinic:', error)
-        });
+    // DELETE CLINIC
+    deleteClinic(clinicId: number): void {
+        if (confirm('Are you sure you want to delete this clinic?')) {
+            this.mediconnectService.deleteClinic(clinicId).subscribe({
+                next: () => {
+                    alert('Clinic deleted successfully.');
+                    this.loadDoctorData(); // Refresh the list
+                },
+                error: (error) => console.error('Error deleting clinic:', error)
+            });
+        }
     }
-}
 
-// DELETE PATIENT
-deletePatient(): void {
-    if (confirm('Are you sure you want to delete your patient profile?')) {
-        this.mediconnectService.deletePatient(this.patientId).subscribe({
-            next: () => {
-                alert('Profile deleted successfully.');
-                localStorage.clear();
-                this.router.navigate(['/auth/login']);
-            },
-            error: (error) => console.error('Error deleting patient:', error)
-        });
+    // DELETE PATIENT
+    deletePatient(): void {
+        if (confirm('Are you sure you want to delete your patient profile?')) {
+            this.mediconnectService.deletePatient(this.patientId).subscribe({
+                next: () => {
+                    alert('Profile deleted successfully.');
+                    localStorage.clear();
+                    this.router.navigate(['/auth/login']);
+                },
+                
+                error: (error) => console.error('Error deleting patient:', error)
+            });
+        }
     }
-}
 }

@@ -93,11 +93,23 @@ public class DoctorServiceImplJpa implements DoctorService {
         doctorRepository.save(doctorEntity);
     }
 
+    // @Override
+    // public void deleteDoctor(int doctorId) throws Exception {
+    //     appointmentRepository.deleteByDoctorId(doctorId);
+    //     clinicRepository.deleteByDoctorId(doctorId);
+    //     userRepository.deleteByDoctorId(doctorId);
+    //     doctorRepository.deleteById(doctorId);
+    // }
+
+
     @Override
     public void deleteDoctor(int doctorId) throws Exception {
         appointmentRepository.deleteByDoctorId(doctorId);
         clinicRepository.deleteByDoctorId(doctorId);
-        userRepository.deleteByDoctorId(doctorId);
+        User linkedUser = userRepository.findByDoctorId(doctorId);
+        if (linkedUser != null) {
+            userRepository.deleteById(linkedUser.getUserId());
+        }
         doctorRepository.deleteById(doctorId);
     }
 
